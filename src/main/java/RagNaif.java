@@ -16,6 +16,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.memory.ChatMemory;
@@ -23,6 +26,14 @@ import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.service.AiServices;
 
 public class RagNaif {
+
+    private static void configureLogger() {
+        Logger packageLogger = Logger.getLogger("dev.langchain4j");
+        packageLogger.setLevel(Level.FINE);
+        ConsoleHandler handler = new ConsoleHandler();
+        handler.setLevel(Level.FINE);
+        packageLogger.addHandler(handler);
+    }
 
     public static void main(String[] args) {
         try {
@@ -72,6 +83,7 @@ public class RagNaif {
             ChatLanguageModel chatModel = GoogleAiGeminiChatModel.builder()
                     .apiKey(System.getenv("GeminiKey"))
                     .modelName("gemini-2.5-flash")
+                    .logRequestsAndResponses(true)
                     .temperature(0.2)
                     .build();
 
@@ -79,8 +91,8 @@ public class RagNaif {
             EmbeddingStoreRetriever retriever = EmbeddingStoreRetriever.from(
                     embeddingStore,
                     embeddingModel,
-                    2,      // maxResults = 2
-                    0.5     // minScore = 0.5
+                    3,
+                    0.7     
             );
 
             // Ajout d'une mémoire pour 10 messages
@@ -112,9 +124,9 @@ public class RagNaif {
 
                 try {
                     String response = assistant.chat(question);
-                    System.out.println("\n🤖 Réponse : " + response);
+                    System.out.println("\n Réponse : " + response);
                 } catch (Exception e) {
-                    System.out.println("\n❌ Erreur lors de la génération de la réponse : " + e.getMessage());
+                    System.out.println("\n Erreur lors de la génération de la réponse : " + e.getMessage());
                 }
             }
 
@@ -122,7 +134,7 @@ public class RagNaif {
             System.out.println("Au revoir !");
 
         } catch (Exception e) {
-            System.err.println("❌ Erreur lors de l'exécution : " + e.getMessage());
+            System.err.println(" Erreur lors de l'exécution : " + e.getMessage());
             e.printStackTrace();
         }
     }
